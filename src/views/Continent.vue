@@ -19,7 +19,7 @@
 import axios from 'axios';
 
 export default {
-  name: 'Football',
+  name: 'Continent',
   props: ['continentId'],
   data() {
     return {
@@ -62,7 +62,12 @@ export default {
 </script>
 
 <style>
-  li {
-    list-style: none;
+  a {
+    text-decoration: none;
+    color: black;
+    text-align: left;
+  }
+  a:hover {
+    text-decoration: underline;
   }
 </style>

@@ -1,15 +1,15 @@
 <template>
-  <div id="football">
-    <h1>World</h1>
+  <div class="about">
     <h4 v-if="loading">Loading...</h4>
     <div v-else>
-      <ul>
-        <li v-for="area in continents" v-bind:key="area.id">
-          <router-link :to="{name: 'Continent', params: {continentId: area.id}}">
-            {{ area.name }}
+      <!-- <h1>{{ continentName }} </h1> -->
+      <table>
+        <tr v-for="player in squad" v-bind:key="player.id">
+          <router-link :to="{name: 'Player', params: {playerId: player.id}}">
+            <td> {{ player.name }} </td>
           </router-link>
-        </li>
-      </ul>
+        </tr>
+      </table>
     </div>
   </div>
 </template>
@@ -18,23 +18,24 @@
 import axios from 'axios';
 
 export default {
-  name: 'Football',
+  name: 'Club',
+  props: ['clubId'],
   data() {
     return {
       loading: false,
-      continents: null,
+      squad: null,
     };
   },
   created() {
     this.loading = true;
-    this.getContinents();
+    this.getSquad();
   },
   watch: {
     // call again the method if the route changes
-    $route: 'getContinents',
+    $route: 'getSquad',
   },
   methods: {
-    async getContinents() {
+    async getSquad() {
       const instance = axios.create({
         baseURL: 'https://api.football-data.org/v2',
         timeout: 60000,
@@ -43,13 +44,10 @@ export default {
         },
       });
 
-      const continentList = ['AFR', 'ASI', 'EUR', 'NCA', 'OCE', 'SAM'];
-
       try {
-        const res = await instance.get('/areas');
-        const { areas } = res.data;
-        const world = areas.filter((area) => (area.parentAreaId === 2267 || area.parentArea === 'World') && continentList.includes(area.countryCode));
-        this.continents = world;
+        const res = await instance.get(`/teams/${this.clubId}`);
+        const { squad } = res.data;
+        this.squad = squad;
       } catch (error) {
         console.log(error);
       }
@@ -61,9 +59,6 @@ export default {
 </script>
 
 <style>
-  li {
-    list-style: none;
-  }
   a {
     text-decoration: none;
     color: black;

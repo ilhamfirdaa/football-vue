@@ -1,15 +1,8 @@
 <template>
-  <div id="football">
-    <h1>World</h1>
+  <div class="about">
     <h4 v-if="loading">Loading...</h4>
     <div v-else>
-      <ul>
-        <li v-for="area in continents" v-bind:key="area.id">
-          <router-link :to="{name: 'Continent', params: {continentId: area.id}}">
-            {{ area.name }}
-          </router-link>
-        </li>
-      </ul>
+      <h1>{{ player.firstName }} </h1>
     </div>
   </div>
 </template>
@@ -18,23 +11,24 @@
 import axios from 'axios';
 
 export default {
-  name: 'Football',
+  name: 'Player',
+  props: ['playerId'],
   data() {
     return {
       loading: false,
-      continents: null,
+      player: null,
     };
   },
   created() {
     this.loading = true;
-    this.getContinents();
+    this.getPlayer();
   },
   watch: {
     // call again the method if the route changes
-    $route: 'getContinents',
+    $route: 'getPlayer',
   },
   methods: {
-    async getContinents() {
+    async getPlayer() {
       const instance = axios.create({
         baseURL: 'https://api.football-data.org/v2',
         timeout: 60000,
@@ -43,13 +37,9 @@ export default {
         },
       });
 
-      const continentList = ['AFR', 'ASI', 'EUR', 'NCA', 'OCE', 'SAM'];
-
       try {
-        const res = await instance.get('/areas');
-        const { areas } = res.data;
-        const world = areas.filter((area) => (area.parentAreaId === 2267 || area.parentArea === 'World') && continentList.includes(area.countryCode));
-        this.continents = world;
+        const res = await instance.get(`/players/${this.playerId}`);
+        this.player = res.data;
       } catch (error) {
         console.log(error);
       }
@@ -61,9 +51,6 @@ export default {
 </script>
 
 <style>
-  li {
-    list-style: none;
-  }
   a {
     text-decoration: none;
     color: black;

@@ -2,13 +2,34 @@
   <div id="app">
     <div id="nav">
       <router-link to="/">Home</router-link> |
-      <router-link to="/football">Football</router-link>
+      <router-link to="/football">Football</router-link> |
+      <span v-if="isLogin" @click="logout">Logout</span>
     </div>
     <transition name="slide-fade">
       <router-view/>
     </transition>
   </div>
 </template>
+
+<script>
+import { mapActions, mapState } from 'vuex';
+
+export default {
+  computed: {
+    ...mapState([
+      'isLogin',
+    ]),
+  },
+  methods: {
+    ...mapActions([
+      'doLogout',
+    ]),
+    logout() {
+      this.doLogout();
+    },
+  },
+};
+</script>
 
 <style lang="scss">
 #app {
@@ -32,6 +53,11 @@
     &.router-link-exact-active {
       color: #42b983;
     }
+  }
+
+  span:hover {
+    cursor: pointer;
+    text-decoration: underline;
   }
 }
 

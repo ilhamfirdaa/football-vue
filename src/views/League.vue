@@ -1,15 +1,16 @@
 <template>
-  <div id="football">
-    <h1>World</h1>
+  <div class="about">
     <h4 v-if="loading">Loading...</h4>
     <div v-else>
-      <ul>
-        <li v-for="area in continents" v-bind:key="area.id">
-          <router-link :to="{name: 'Continent', params: {continentId: area.id}}">
-            {{ area.name }}
+      <!-- <h1>{{ continentName }} </h1> -->
+      <table>
+        <tr v-for="club in clubs" v-bind:key="club.id">
+          <router-link :to="{name: 'Club', params: {clubId: club.id}}">
+            <td> {{ club.name }} </td>
           </router-link>
-        </li>
-      </ul>
+          <td v-if="club.crestUrl !== null"><img :src="club.crestUrl" @error="(() => club.crestUrl = null)" width="16" height="16"></td>
+        </tr>
+      </table>
     </div>
   </div>
 </template>
@@ -18,23 +19,24 @@
 import axios from 'axios';
 
 export default {
-  name: 'Football',
+  name: 'League',
+  props: ['leagueId'],
   data() {
     return {
       loading: false,
-      continents: null,
+      clubs: null,
     };
   },
   created() {
     this.loading = true;
-    this.getContinents();
+    this.getClubs();
   },
   watch: {
     // call again the method if the route changes
-    $route: 'getContinents',
+    $route: 'getClubs',
   },
   methods: {
-    async getContinents() {
+    async getClubs() {
       const instance = axios.create({
         baseURL: 'https://api.football-data.org/v2',
         timeout: 60000,
@@ -43,13 +45,10 @@ export default {
         },
       });
 
-      const continentList = ['AFR', 'ASI', 'EUR', 'NCA', 'OCE', 'SAM'];
-
       try {
-        const res = await instance.get('/areas');
-        const { areas } = res.data;
-        const world = areas.filter((area) => (area.parentAreaId === 2267 || area.parentArea === 'World') && continentList.includes(area.countryCode));
-        this.continents = world;
+        const res = await instance.get(`/competitions/${this.leagueId}/teams`);
+        const { teams } = res.data;
+        this.clubs = teams;
       } catch (error) {
         console.log(error);
       }
@@ -61,9 +60,6 @@ export default {
 </script>
 
 <style>
-  li {
-    list-style: none;
-  }
   a {
     text-decoration: none;
     color: black;
